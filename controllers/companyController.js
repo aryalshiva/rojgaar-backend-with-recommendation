@@ -3,6 +3,10 @@ const multer = require("multer");
 const CompanyModel = require("../model/CompanyModel");
 const router = new express.Router();
 const companyModel = require("../model/CompanyModel");
+const Job = require("../model/JobModel");
+const User = require("../model/userModel");
+
+const { cosineSimilarity } = require("../utils/similarity");
 
 module.exports.getCompanyInfo = async (req, res, next) => {
   try {
@@ -180,3 +184,48 @@ module.exports.getJobsWearOs = async (req, res, next) => {
     });
   }
 };
+module.exports.getRecommendation = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+    const userSkills = user.professional.skills.map(skill => skill.toLowerCase()); // Convert user skills to lowercase
+
+    // Fetch all jobs from the database
+    const jobs = await Job.find();
+
+    // Calculate cosine similarity between user skills and each job's required skills
+    const recommendedJobs = jobs.map((job) => {
+      const jobSkills = job.skills.map(skill => skill.toLowerCase()); // Convert job required skills to lowercase
+      const userVector = userSkills.map((skill) =>
+        jobSkills.includes(skill.toLowerCase()) ? 1 : 0
+      ); // Convert user skills to a binary vector
+      const jobVector = jobSkills.map((skill) =>
+        userSkills.includes(skill.toLowerCase()) ? 1 : 0
+      ); // Convert job required skills to a binary vector
+      const similarity = cosineSimilarity(userVector, jobVector);
+      return { job, similarity };
+    });
+
+    // Filter out jobs with similarity score of 0 and sort recommended jobs by similarity in descending order
+    const filteredJobs = recommendedJobs.filter(job => job.similarity > 0)
+                                        .sort((a, b) => b.similarity - a.similarity);
+
+    // Determine the number of jobs to return (up to 5)
+    const numJobsToReturn = Math.min(filteredJobs.length, 5);
+
+    // Return recommended jobs
+    const topJobs = filteredJobs.slice(0, numJobsToReturn);
+
+    res.status(200).json({
+      success: true,
+      data: topJobs,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Server Error",
+    });
+  }
+};
+
