@@ -48,29 +48,37 @@ module.exports.addCategory = async (req, res, next) => {
   });
 };
 
-//get count of jobs in each category
 module.exports.getCategoryCount = async (req, res, next) => {
   try {
     const categories = await Category.find({});
     const jobs = await Job.find({});
     const jobsInCategory = [];
+
     categories.forEach((category) => {
+      // Filter jobs where sector is defined and matches category ID
       const jobsInCategoryCount = jobs.filter((job) =>
-        job.sector.equals(category._id)
+        job.sector && job.sector.equals(category._id)
       );
+
       jobsInCategory.push({
         category: category,
         jobs: jobsInCategoryCount.length,
       });
     });
+
     res.status(200).json({
       success: true,
       data: jobsInCategory,
     });
   } catch (e) {
     console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
 };
+
 
 module.exports.getCategories = async (req, res, next) => {
   try {

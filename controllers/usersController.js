@@ -11,7 +11,7 @@ const path = require("path");
 const { register_schema } = require("../validators/register_validator");
 const jwt = require("jsonwebtoken");
 const generateToken = require("../config/generateToken");
-const Todo = require("../model/TodoModels");
+
 
 // Node Mail Service Transporter
 let transporter = nodemailer.createTransport({
@@ -659,47 +659,6 @@ module.exports.allUsersApp = async (req, res, next) => {
 
 
 
-module.exports.addTodos = async (req, res, next) => {
-  try {
-    const { title, note, color, isCompleted } = req.body;
-
-    const user = req.user;
-    const todo = new Todo({
-      title,
-      note,
-      color,
-      isCompleted,
-    });
-    await todo.save();
-    user.todos.push(todo);
-    await user.save();
-    return res.json({
-      status: true,
-      msg: "Todo added successfully",
-      todo,
-    });
-  } catch (e) {
-    next(e);
-  }
-};
-
-//mark todo completed
-module.exports.markTodoCompleted = async (req, res, next) => {
-  try {
-    const { todoId } = req.body;
-    const user = req.user;
-    const todo = await Todo.findById(todoId);
-    todo.isCompleted = true;
-    await todo.save();
-    return res.json({
-      status: true,
-      msg: "Todo marked completed successfully",
-      todo,
-    });
-  } catch (e) {
-    next(e);
-  }
-};
 //update certain fields of the user
 module.exports.updateUser = async (req, res, next) => {
   const userId = req.user._id;

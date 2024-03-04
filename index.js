@@ -3,7 +3,6 @@ const userRoutes = require("./routes/userRoutes");
 const companyRoute = require("./routes/companyRoute");
 const jobRoute = require("./routes/jobRoute");
 const categoryRoute = require("./routes/categoryRoute");
-const todosRoute = require("./routes/todoRoute");
 
 //Socket Connection
 const socket = require("socket.io");
@@ -25,15 +24,13 @@ app.use(express.json());
 
 //Routes Setup
 app.use("/api/auth", userRoutes);
-// app.use("/api/messages", messageRoute);
-// app.use("/api/video", videoRoute);
+
 app.use("/api/company", companyRoute);
 app.use("/api/job", jobRoute);
-//app.use("/api/chat", chatRoute);
-// app.use("/api/message", messagesRoute);
+
 app.use("/api/category", categoryRoute);
-// app.use("/api/event", eventsRoute);
-app.use("/api/todo", todosRoute);
+
+
 app.use("/uploads", express.static("uploads"));
 
 // Server Initialization

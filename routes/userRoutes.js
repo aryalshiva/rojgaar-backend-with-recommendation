@@ -10,8 +10,6 @@ const {
   resendVerification,
   applyJob,
   allUsers,
-  markTodoCompleted,
-  addTodos,
   updateUser,
   updateUserDetails,
   changeProfileImage,
@@ -37,8 +35,6 @@ router.get("/applyJob/", applyJob);
 
 router.route("/getAllUsers").get(protect, allUsers);
 router.route("/getAllUsersApp").get(protect, allUsersApp);
-router.route("/addTodo").post(protect, addTodos);
-router.route("/completeTodo").put(protect, markTodoCompleted);
 router.route("/updateUser").put(protect, updateUser);
 router.route("/updateCompany").put(protect, updateCompanyDetails);
 router.route("/updateUserDetails").post(protect, updateUserDetails);
