@@ -275,7 +275,7 @@ module.exports.getCompanyJobDetail = async (req, res, next) => {
     for (job_id in jobArray) {
       const objId = jobArray[job_id];
       var dat = await getReusableJobDetail1(objId);
-      op.push({ data: dat });
+      op.push({ model: dat });
     }
     return res.json({
       success: true,

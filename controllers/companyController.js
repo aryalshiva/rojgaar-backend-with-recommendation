@@ -168,13 +168,19 @@ module.exports.getJobsWearOs = async (req, res, next) => {
       .populate({
         path: "jobs",
         model: "Job",
-        select: "title -_id applicants.applicant",
+        select: "_id applicants.applicant",
       })
       .select("jobs");
 
+    // Adjust the response structure
+    const formattedData = company.jobs.map(job => ({
+      _id: job._id,
+      applicants: job.applicants
+    }));
+
     return res.status(200).json({
       success: true,
-      data: company,
+      data: formattedData,
     });
   } catch (error) {
     console.log(error);
@@ -184,6 +190,7 @@ module.exports.getJobsWearOs = async (req, res, next) => {
     });
   }
 };
+
 module.exports.getRecommendation = async (req, res, next) => {
   try {
     const userId = req.user._id;
