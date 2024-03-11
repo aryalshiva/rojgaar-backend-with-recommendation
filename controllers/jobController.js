@@ -263,31 +263,30 @@ const getReusableJobDetail1 = async (job_id) => {
 
   return Jobs;
 };
-
 module.exports.getCompanyJobDetail = async (req, res, next) => {
   var op = [];
 
   try {
-    const result = await Company.findById(req.query.user).select("jobs");
+      const result = await Company.findById(req.query.user).select("jobs");
 
-    //get details of all the jobs
-    const jobArray = result["jobs"];
-    for (job_id in jobArray) {
-      const objId = jobArray[job_id];
-      var dat = await getReusableJobDetail1(objId);
-      op.push({ model: dat });
-    }
-    return res.json({
-      success: true,
-      data: op,
-    });
+      // Get details of all the jobs
+      const jobArray = result["jobs"];
+      for (job_id in jobArray) {
+          const objId = jobArray[job_id];
+          var dat = await getReusableJobDetail1(objId);
+          op.push(dat); // Push the job object directly
+      }
+      return res.json({
+          success: true,
+          data: op,
+      });
   } catch (error) {
-    console.log(error);
-    return res.json({
-      success: false,
-      error: error,
-      msg: error,
-    });
+      console.log(error);
+      return res.json({
+          success: false,
+          error: error,
+          msg: error,
+      });
   }
 };
 
