@@ -366,7 +366,7 @@ module.exports.updateJobStatus = async (req, res, next) => {
   }
 };
 
-module.exports.getAppliedJobs = asyncHandler(async (req, res, next) => {
+(module.exports.getAppliedJobs = asyncHandler(async (req, res, next) => {
   const usr = await req.user._id;
   var jobs = await userModel
     .findById(usr)
@@ -381,9 +381,23 @@ module.exports.getAppliedJobs = asyncHandler(async (req, res, next) => {
   if (!jobs) {
     res.status(400).send("Applied Jobs not found");
   } else {
-    res.status(200).send(jobs);
+    // Modify the applied jobs array to remove the top-level "job" field
+    const modifiedJobs = jobs.appliedJobs.map(appliedJob => {
+      const { job, appliedDate, status, _id } = appliedJob;
+      return {
+        ...job.toObject(), // Convert Mongoose document to plain JavaScript object
+        appliedDate,
+        status,
+        _id,
+      };
+    });
+
+    res.status(200).send({
+      _id: jobs._id,
+      appliedJobs: modifiedJobs,
+    });
   }
-});
+}));
 module.exports.getSavedJobs = asyncHandler(async (req, res, next) => {
   const usr = await req.user._id;
   var jobs = await userModel
