@@ -121,7 +121,7 @@ const userSchema = new mongoose.Schema({
     {
       job: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Job",
+       ref: "Job",  
       },
       appliedDate: {
         type: Date,

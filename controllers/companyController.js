@@ -190,19 +190,20 @@ module.exports.getJobsWearOs = async (req, res, next) => {
     });
   }
 };
-
 module.exports.getRecommendation = async (req, res, next) => {
   try {
     const userId = req.user._id;
     const user = await User.findById(userId);
-    const userSkills = user.professional.skills.map(skill => skill.toLowerCase()); // Convert user skills to lowercase
+    const userSkills = user.professional.skills.map((skill) =>
+      skill.toLowerCase()
+    ); // Convert user skills to lowercase
 
     // Fetch all jobs from the database
-    const jobs = await Job.find();
+    const jobs = await Job.find().populate("company");
 
     // Calculate cosine similarity between user skills and each job's required skills
     const recommendedJobs = jobs.map((job) => {
-      const jobSkills = job.skills.map(skill => skill.toLowerCase()); // Convert job required skills to lowercase
+      const jobSkills = job.skills.map((skill) => skill.toLowerCase()); // Convert job required skills to lowercase
       const userVector = userSkills.map((skill) =>
         jobSkills.includes(skill.toLowerCase()) ? 1 : 0
       ); // Convert user skills to a binary vector
@@ -214,16 +215,21 @@ module.exports.getRecommendation = async (req, res, next) => {
     });
 
     // Filter out jobs with similarity score of 0 and sort recommended jobs by similarity in descending order
-    const filteredJobs = recommendedJobs.filter(job => job.similarity > 0)
-                                        .sort((a, b) => b.similarity - a.similarity);
+    const filteredJobs = recommendedJobs
+      .filter((job) => job.similarity > 0)
+      .sort((a, b) => b.similarity - a.similarity);
 
     // Determine the number of jobs to return (up to 5)
     const numJobsToReturn = Math.min(filteredJobs.length, 5);
 
-    // Return recommended jobs
-    const topJobs = filteredJobs.slice(0, numJobsToReturn);
+    // Return recommended jobs with similarity and populated company data
+    const topJobs = filteredJobs.slice(0, numJobsToReturn).map((job) => ({
+      job: job.job._doc,
+      similarity: job.similarity,
+      company: job.job.company,
+    }));
 
-    res.status(200).json({
+    res.json({
       success: true,
       data: topJobs,
     });
