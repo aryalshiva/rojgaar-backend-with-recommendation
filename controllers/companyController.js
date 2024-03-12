@@ -211,7 +211,11 @@ module.exports.getRecommendation = async (req, res, next) => {
         userSkills.includes(skill.toLowerCase()) ? 1 : 0
       ); // Convert job required skills to a binary vector
       const similarity = cosineSimilarity(userVector, jobVector);
-      return { job, similarity };
+      return { 
+        ...job.toObject(), // Convert Mongoose document to plain object
+        similarity: similarity,
+        company: job.company.toObject() // Convert Mongoose subdocument to plain object
+      };
     });
 
     // Filter out jobs with similarity score of 0 and sort recommended jobs by similarity in descending order
@@ -224,9 +228,9 @@ module.exports.getRecommendation = async (req, res, next) => {
 
     // Return recommended jobs with similarity and populated company data
     const topJobs = filteredJobs.slice(0, numJobsToReturn).map((job) => ({
-      job: job.job._doc,
+      ...job,
       similarity: job.similarity,
-      company: job.job.company,
+      company: job.company,
     }));
 
     res.json({
@@ -241,4 +245,5 @@ module.exports.getRecommendation = async (req, res, next) => {
     });
   }
 };
+
 
