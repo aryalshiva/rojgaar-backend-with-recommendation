@@ -280,7 +280,7 @@ module.exports.getCompanyJobDetail = async (req, res, next) => {
         ...applicant.applicant.toObject(), // Extract applicant details
         status: applicant.status,
         appliedDate: applicant.appliedDate,
-        _id: applicant._id
+        _id: applicant.applicant._id
       }));
 
       // Update the job object to only contain applicant details
